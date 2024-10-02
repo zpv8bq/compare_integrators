@@ -8,15 +8,15 @@ LDFLAGS    = $(ROOTLIBS) $(ROOTGLIBS)
 GXX	   = g++ $(CXXFLAGS)
 
 
-a11: sobel
+a11: sobol
 
 
-sobel: sobel.cpp 
-	$(GXX) $(CXXFLAGS) -o sobel sobel.cpp $(LDFLAGS)
+sobol: sobol.cpp 
+	$(GXX) $(CXXFLAGS) -o sobol sobol.cpp $(LDFLAGS)
 
 
 clean:
-	rm -f sobel
+	rm -f sobol
 	rm -f *~ *.d *.so *.pcm 
 
 cleanall: clean

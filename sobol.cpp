@@ -10,10 +10,10 @@
 #include "TCanvas.h"
 #include "TGClient.h"
 #include "TStyle.h"
-
+#include <cstdlib>
 #include <iostream>
-using namespace std;
 
+using namespace std;
 using namespace ROOT::Math;
 
 
@@ -35,9 +35,14 @@ private:
 
 
 
+// run as
+// ./sobol
+// or to adjust the numebr of points and offset in the sobel sequence
+// eg ./sobol 2000 10000
+
 int main(int argc, char **argv) {
 
-  unsigned long npoints=10000;
+  unsigned long npoints=5000;
   unsigned long nskip=0;
   
   // This allows you to view ROOT-based graphics in your C++ program
@@ -45,6 +50,9 @@ int main(int argc, char **argv) {
   // this can be ignored
   TApplication theApp("App", &argc, argv);
 
+  if (argc>1) npoints=atol(argv[1]);
+  if (argc>2) nskip=atol(argv[2]);
+  
   gStyle->SetOptStat(0);
 
   TGraph *gr = new TGraph();
