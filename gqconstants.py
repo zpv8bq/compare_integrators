@@ -159,44 +159,75 @@ class HighPrecisionGaussInt:
             print(f"Weight: {self.weight[i]}")
             print(f"Root:   {self.lroots[i]}")
             print()
-    
     def integ(self, f, a: float, b: float) -> Decimal:
-        """
-        Integrate function f from a to b using Gaussian quadrature
-        """
+        #Integrate function f from a to b using Gaussian quadrature
         a_dec = Decimal(str(a))
         b_dec = Decimal(str(b))
-        
         c1 = (b_dec - a_dec) / Decimal(2)
         c2 = (b_dec + a_dec) / Decimal(2)
         sum_val = Decimal(0)
-        
         for i in range(len(self.weight)):
             # Convert to float for function evaluation, then back to Decimal
             x_eval = float(c1 * self.lroots[i] + c2)
             f_val = Decimal(str(f(x_eval)))
             sum_val += self.weight[i] * f_val
-        
         return c1 * sum_val
 
-    def integ(self, f, a: float, b: float) -> Decimal:
-        """
-        Integrate function f from a to b using Gaussian quadrature
-        """
-        
-        ### complete code here ###
-    
-        return 0  # integral of function f
+def f(x):
+    return math.exp(-x)
 
-    
+def Trapezoid(N):
+    a=0
+    b=1
+    h = (b - a) / (N - 1)
+    sigma = 0.5*(f(a)+f(b))*h
+    for i in range(1,N):
+        t = a+(i-1)*h
+        sigma += h*f(t)
+    return sigma
+
+def Simpson(N):
+    a=0
+    b=1
+    h= (b - a) / (N - 1)
+    sigma = (h/3)*(f(a)+f(b))
+    for i in range(1,N):
+        t = a + (i - 1) * h
+        if i%2 == 0:
+            sigma += (2*h/3)*f(t)
+        else:
+            sigma += (4*h/3)*f(t)
+    return sigma
+
+Exact_val = Decimal(str(1-math.exp(-1)))
+#Exact_val = 2
+print("Exact val=",Exact_val)
 # Example usage and testing
 if __name__ == "__main__":
     import sys
+
     # Create high precision integrator
-    if len(sys.argv)==1: order=10
+    if len(sys.argv) == 1:
+        order = 10
     else:
-        order=int(sys.argv[1])
+        order = int(sys.argv[1])
     print(f"Creating {order}-point Gaussian quadrature with high precision...")
     gauss_hp = HighPrecisionGaussInt(order, precision=40)
     gauss_hp.PrintWA()
-    
+    with open("T_errors.csv", "w") as fcsv:
+       # fcsv.write("Method,N,Error\n")
+        for N in range(2,1001):
+            approximation = Decimal(Trapezoid(N))
+            error = abs(approximation-Exact_val)/Exact_val
+            fcsv.write(f"Trapezoid,{N},{error:.6e}\n")
+    with open("S_errors.csv", "w") as fcsv:
+        for N in range(3,1001,2):
+            approximation = Decimal(Simpson(N))
+            error = abs(approximation - Exact_val)/Exact_val
+            fcsv.write(f"Simpson,{N},{error:.6e}\n")
+    with open("Q_errors.csv", "w") as fcsv:
+        for N in range(1,11):
+            gq=HighPrecisionGaussInt(N)
+            approximation = Decimal(gq.integ(f,0,1))
+            error = abs(approximation - Exact_val)/Exact_val
+            fcsv.write(f"Gaussian,{N},{error:.6e}\n")
